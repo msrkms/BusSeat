@@ -26,12 +26,17 @@ public class SeatViewModel extends AndroidViewModel {
     int NO_OF_COLUMN=0;
     int NO_OF_CORRIDOR=0;
     int CORRIDOR_LENGTH=0;
+    int NO_OF_ROW=0;
     private MutableLiveData<List<Seat>> listMutableLiveData;
     public SeatViewModel(@NonNull Application application) {
         super(application);
         this.context=application;
         seatRepository=new SeatRepository();
     }
+
+
+
+
 
     public LiveData<List<Seat>> getData(){
       String data=  seatRepository.getJsonFromAssets(context);
@@ -51,6 +56,9 @@ public class SeatViewModel extends AndroidViewModel {
                         JSONObject jsonObject=jsonArrayNested.getJSONObject(j);
                         Seat seat =new Seat();
                         seat.setSeatType(jsonObject.getString("t"));
+                        if(jsonObject.has("c")){
+                            seat.setColumn(Integer.valueOf(jsonObject.getString("c")));
+                        }
                         if(seat.getSeatType().equals("s")){
                             seat.setSeatNo(jsonObject.getString("n"));
                         }else if(seat.getSeatType().equals("c")){
@@ -65,12 +73,27 @@ public class SeatViewModel extends AndroidViewModel {
                     while (keys.hasNext()){
                         Seat seat=new Seat();
                         JSONObject objectNested=jsonObject.getJSONObject(keys.next());
+                        if(objectNested.has("c")){
+                            seat.setColumn(Integer.valueOf(objectNested.getString("c")));
+                        }
                         seat.setSeatType(objectNested.getString("t"));
                         if(seat.getSeatType().equals("s")){
                             seat.setSeatNo(objectNested.getString("n"));
+                        }else if(seat.getSeatType().equals("c")){
+
+                            NO_OF_CORRIDOR=NO_OF_CORRIDOR+1;
+                            System.out.println(objectNested.toString()+"-"+NO_OF_CORRIDOR);
+                            CORRIDOR_LENGTH=Integer.valueOf(objectNested.getString("r"));
+
                         }
                         seatList.add(seat);
-
+                        if(seat.getColumn()>1){
+                            for (int j = 1; j < seat.getColumn(); j++) {
+                                Seat seat1=new Seat();
+                                seat1.setSeatType("b");
+                                seatList.add(seat1);
+                            }
+                        }
                     }
                 }
 
@@ -96,6 +119,8 @@ public class SeatViewModel extends AndroidViewModel {
         }else {
             totalSeat=seatList.size();
         }
+
+
 
         int noOfRow=totalSeat/NO_OF_COLUMN;
         int[] IndexOFCorridor= new  int[NO_OF_CORRIDOR];
@@ -163,5 +188,75 @@ public class SeatViewModel extends AndroidViewModel {
         }
 
     }
+
+
+
+
+
+    public LiveData<List<Seat>> getData2(){
+        String data=  seatRepository.getJsonFromAssets(context);
+        listMutableLiveData=new MutableLiveData<>();
+        List<Seat> seatList=new ArrayList<>();
+        try {
+            JSONArray jsonArray=new JSONArray(data);
+            NO_OF_ROW=jsonArray.length();
+            List<List<Seat>>lists=new ArrayList<>();
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                List<Seat> row =new ArrayList<>();
+                if(checkArray(jsonArray.get(i).toString())){
+                    JSONArray jsonArrayNested =jsonArray.getJSONArray(i);
+                    if(NO_OF_COLUMN<jsonArrayNested.length()){
+                        NO_OF_COLUMN=jsonArrayNested.length();
+                    }
+
+                    for (int j = 0; j < jsonArrayNested.length(); j++) {
+                        JSONObject jsonObject=jsonArrayNested.getJSONObject(j);
+                        Seat seat =new Seat();
+                        seat.setSeatType(jsonObject.getString("t"));
+                        if(seat.getSeatType().equals("s")){
+                            seat.setSeatNo(jsonObject.getString("n"));
+                        }else if(seat.getSeatType().equals("c")){
+                            NO_OF_CORRIDOR=NO_OF_CORRIDOR+1;
+                            CORRIDOR_LENGTH=Integer.valueOf(jsonObject.getString("r"));
+                        }
+                        row.add(seat);
+                    }
+                }else {
+                    JSONObject jsonObject=jsonArray.getJSONObject(i);
+                    Iterator<String> keys=jsonObject.keys();
+                    while (keys.hasNext()){
+
+                        Seat seat=new Seat();
+                        JSONObject objectNested=jsonObject.getJSONObject(keys.next());
+                        seat.setSeatType(objectNested.getString("t"));
+                        if(seat.getSeatType().equals("s")){
+                            seat.setSeatNo(objectNested.getString("n"));
+                        }else if(seat.getSeatType().equals("c")){
+
+                            NO_OF_CORRIDOR=NO_OF_CORRIDOR+1;
+                            CORRIDOR_LENGTH=Integer.valueOf(objectNested.getString("r"));
+
+                        }
+                        row.add(seat);
+                    }
+                }
+                lists.add(row);
+                for (int j = 0; j < row.size(); j++) {
+                    System.out.println(lists.size()+"-"+row.get(j).getSeatType());
+                }
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            System.out.println("error"+e.toString());
+        }
+
+
+        return listMutableLiveData;
+    }
+
+
 
 }

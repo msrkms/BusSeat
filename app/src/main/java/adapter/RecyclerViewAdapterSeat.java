@@ -1,8 +1,11 @@
 package adapter;
 
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +20,7 @@ import Model.Seat;
 
 public class RecyclerViewAdapterSeat extends RecyclerView.Adapter<RecyclerViewAdapterSeat.ViewHolder>{
     private List<Seat> seatList;
+    int i=0;
 
     public RecyclerViewAdapterSeat(List<Seat> seatList) {
         this.seatList = seatList;
@@ -53,6 +57,8 @@ public class RecyclerViewAdapterSeat extends RecyclerView.Adapter<RecyclerViewAd
             super(itemView);
             textViewSeat=itemView.findViewById(R.id.textViewSeatNO);
             materialCardViewSeat=itemView.findViewById(R.id.materialCardViewSeat);
+
+
         }
 
         public void setData(Seat data){

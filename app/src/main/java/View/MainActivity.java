@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(List<Seat> seats) {
 
                 RecyclerViewAdapterSeat recyclerViewAdapterSeat=new RecyclerViewAdapterSeat(seats);
-                recyclerViewSeat.setAdapter(recyclerViewAdapterSeat);
+               recyclerViewSeat.setAdapter(recyclerViewAdapterSeat);
                 recyclerViewSeat.setLayoutManager(new GridLayoutManager(getApplicationContext(),seatViewModel.getNO_OF_COLUMN()));
             }
         });
